@@ -1,3 +1,3 @@
 @if ($crud->hasAccess('update'))
-<a href="{{ url('admin/address'.'/create' . '/' ) }} " ><i class="fa fa-ban"></i> address </a>
+<a href="{{ backpack_url('address/'. $entry->getKey() ) }} " ><i class="fa fa-ban"></i> address </a>
 @endif

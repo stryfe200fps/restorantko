@@ -21,6 +21,6 @@ Route::group([
     Route::crud('allergen', 'AllergenCrudController');
     Route::get('product/{id}/moderate', 'ProductCrudController@moderate');
     Route::post('product/{id}/upload', 'ProductCrudController@upload');
-    Route::get('user/{id}/address', 'AddressCrudController@address');
-    Route::crud('address', 'AddressCrudController');
+    // Route::get('user/{id}/address', 'AddressCrudController@address');
+    Route::crud('address/{user_id?}', 'AddressCrudController');
 }); // this should be the absolute last line of this file

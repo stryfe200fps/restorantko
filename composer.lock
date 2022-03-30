@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aea92f8d4f6f593161992e3a52e57233",
+    "content-hash": "ab420e3b204898965ae395afc80e32ea",
     "packages": [
         {
             "name": "backpack/crud",
-            "version": "5.0.0",
+            "version": "5.0.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Backpack/CRUD.git",
-                "reference": "c4eb4aeb55dfaf29ecd3f5e0e35ba4321d9c004a"
+                "reference": "d78f4263f5eef1e7761ba2d55d81959f4de559b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Backpack/CRUD/zipball/c4eb4aeb55dfaf29ecd3f5e0e35ba4321d9c004a",
-                "reference": "c4eb4aeb55dfaf29ecd3f5e0e35ba4321d9c004a",
+                "url": "https://api.github.com/repos/Laravel-Backpack/CRUD/zipball/d78f4263f5eef1e7761ba2d55d81959f4de559b6",
+                "reference": "d78f4263f5eef1e7761ba2d55d81959f4de559b6",
                 "shasum": ""
             },
             "require": {
@@ -96,9 +96,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Laravel-Backpack/CRUD/issues",
-                "source": "https://github.com/Laravel-Backpack/CRUD/tree/5.0.0"
+                "source": "https://github.com/Laravel-Backpack/CRUD/tree/5.0.13"
             },
-            "time": "2022-02-08T07:25:46+00:00"
+            "time": "2022-03-30T09:02:10+00:00"
         },
         {
             "name": "backpack/pagemanager",

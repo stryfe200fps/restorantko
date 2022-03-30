@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
 use App\Http\Requests\AddressRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -29,6 +30,14 @@ class AddressCrudController extends CrudController
         CRUD::setModel(\App\Models\Address::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/address');
         CRUD::setEntityNameStrings('address', 'addresses');
+        $passed_league_id = \Route::current()->parameter('user_id');
+         if($passed_league_id != null )
+            $this->crud->setRoute(config('backpack.base.route_prefix') . '/address/'.$passed_league_id);
+        else 
+            $this->crud->setRoute(config('backpack.base.route_prefix') . '/user');
+        $this->crud->operation('list', function () use ($passed_league_id) {
+            $this->crud->addClause('where', 'user_id', $passed_league_id );
+        });
     }
 
       /**
@@ -41,7 +50,8 @@ class AddressCrudController extends CrudController
    
     protected function setupListOperation()
     {
-        CRUD::column('id');
+
+        // CRUD::column('id');
         CRUD::column('user_id');
         CRUD::column('first_name');
         CRUD::column('last_name');
@@ -72,9 +82,18 @@ class AddressCrudController extends CrudController
         CRUD::setValidation(AddressRequest::class);
 
         // dd($this->crud->entry);
-        CRUD::field('id');
-        CRUD::field('user_id');
-        CRUD::field('first_name');
+        // CRUD::field('id');
+        $user_id = \Route::current()->parameter('user_id');
+        CRUD::addField([
+            'name' => 'User',
+            'type' => 'text',
+            'attributes' => [
+                'readonly' => 'readonly'
+            ], 
+            'value' => User::find($user_id)->name
+        ]);
+        CRUD::field('user_id')->value( $user_id )->type('hidden');
+        CRUD::field('first_name')->value('wew');
         CRUD::field('last_name');
         CRUD::field('phone_number');
         CRUD::field('telephone');
