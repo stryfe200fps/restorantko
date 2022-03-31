@@ -23,6 +23,11 @@ class Address extends Model
     // protected $hidden = [];
     // protected $dates = [];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS

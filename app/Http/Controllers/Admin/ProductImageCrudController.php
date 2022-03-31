@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\ProductImageRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
- * Class UserCrudController
+ * Class ProductImageCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class UserCrudController extends CrudController
+class ProductImageCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -26,9 +26,10 @@ class UserCrudController extends CrudController
      */
     public function setup()
     {
-        CRUD::setModel(\App\Models\User::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
-        CRUD::setEntityNameStrings('user', 'users');
+        CRUD::setModel(\App\Models\ProductImage::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/product-image');
+        CRUD::setEntityNameStrings('product image', 'product images');
+        CRUD::denyAccess('create');
     }
 
     /**
@@ -37,23 +38,24 @@ class UserCrudController extends CrudController
      * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
      */
+    protected function setupShowOperation()
+    {
+        $this->crud->denyAccess('delete');
+        $this->crud->denyAccess('update');
+        CRUD::column('file_path')->type('image')->disk('local')->height('1000px')->width('800px');
+    }
+
     protected function setupListOperation()
     {
-        CRUD::column('name');
-        CRUD::column('email');
-        // CRUD::column('password');
-        $this->crud->addButtonFromView('line', 'add_address', 'add_address', 'beginning');
+
+        CRUD::column('file_path')->type('image')->disk('local')->height('200px')->width('200px');
+        CRUD::column('sort_order');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
          * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
          */
-    }
-
-    public function address()
-    {
-        $this->setupCreateOperation();
     }
 
     /**
@@ -64,14 +66,11 @@ class UserCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
+        CRUD::setValidation(ProductImageRequest::class);
+        
+        CRUD::field('file_path');
+        CRUD::field('sort_order');
 
-        CRUD::setValidation(UserRequest::class);
-
-        CRUD::field('name');
-        CRUD::field('email');
-        CRUD::field('password');
-        // backpack_user()->assignRole('writer');
-    
         /**
          * Fields can be defined using the fluent syntax or array syntax:
          * - CRUD::field('price')->type('number');

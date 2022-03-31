@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\OrderRowRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
- * Class UserCrudController
+ * Class OrderRowCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class UserCrudController extends CrudController
+class OrderRowCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -26,9 +26,12 @@ class UserCrudController extends CrudController
      */
     public function setup()
     {
-        CRUD::setModel(\App\Models\User::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
-        CRUD::setEntityNameStrings('user', 'users');
+        CRUD::setModel(\App\Models\OrderRow::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/order-row');
+        CRUD::setEntityNameStrings('order row', 'order rows');
+        CRUD::denyAccess('create');
+        CRUD::denyAccess('update');
+        CRUD::denyAccess('delete');
     }
 
     /**
@@ -39,21 +42,16 @@ class UserCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        CRUD::column('product_id');
+        CRUD::column('order_id');
         CRUD::column('name');
-        CRUD::column('email');
-        // CRUD::column('password');
-        $this->crud->addButtonFromView('line', 'add_address', 'add_address', 'beginning');
+        CRUD::column('price');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
          * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
          */
-    }
-
-    public function address()
-    {
-        $this->setupCreateOperation();
     }
 
     /**
@@ -64,14 +62,13 @@ class UserCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
+        CRUD::setValidation(OrderRowRequest::class);
 
-        CRUD::setValidation(UserRequest::class);
-
+        CRUD::field('product_id');
+        CRUD::field('order_id');
         CRUD::field('name');
-        CRUD::field('email');
-        CRUD::field('password');
-        // backpack_user()->assignRole('writer');
-    
+        CRUD::field('price');
+
         /**
          * Fields can be defined using the fluent syntax or array syntax:
          * - CRUD::field('price')->type('number');

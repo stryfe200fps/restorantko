@@ -1,10 +1,16 @@
 @extends(backpack_view('blank'))
 
+@php
+  $breadcrumbs = [
+      'Admin' => backpack_url('dashboard'),
+      'Dashboard' => false,
+  ];
+@endphp
 
 @section('content')
 <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
-
+<div class="d-inline-flex align-items-center "> <h1>Upload Image</h1> <a class="ml-4" href="{{ backpack_url('product') }}"> back </a> </div>
 <form action="/target" class="dropzone" id="my-great-dropzone">
     @csrf
 </form>

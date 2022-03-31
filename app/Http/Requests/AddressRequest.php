@@ -25,7 +25,13 @@ class AddressRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'first_name' => 'required|min:5|max:255',
+            'last_name' => 'required|min:5|max:255',
+            'phone_number' => 'required|min:5|max:255',
+            'address' => 'required',
+            'street' => 'required',
+            'zip_code' => 'required',
+            'country' => 'required'
         ];
     }
 
@@ -37,7 +43,7 @@ class AddressRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+         
         ];
     }
 
@@ -49,7 +55,18 @@ class AddressRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+               'first_name.min' => 'First name should be 5 or more characters',
+               'first_name.max' => 'First name should be less than 255 characters',
+               'first_name.required' => 'First name should be 5 or mor characters',
+
+                'last_name.min' => 'Last name should be 5 or more characters',
+               'last_name.max' => 'Last name should be less than 255 characters',
+               'last_name.required' => 'Last name should be 5 or mor characters',
+                'phone_number.required' => 'Phone number is required',
+                'address.required' => 'address is required',
+                'street.required' => 'street is required',
+                'zip_code.required' => 'zip code is required',
+                'country.required' => 'country is required',
         ];
     }
 }

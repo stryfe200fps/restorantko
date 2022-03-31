@@ -20,7 +20,9 @@ class ProductCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {
+        show as protected parentShow;
+    }
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -120,7 +122,8 @@ class ProductCrudController extends CrudController
         ],'both');
 
         return view('moderate', [
-            'product_id' => $id
+            'product_id' => $id,
+            'redirect' => config('backpack.base.route_prefix') 
         ]);
      }
     

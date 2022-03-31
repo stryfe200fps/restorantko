@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserRequest extends FormRequest
+class OrderRowRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,9 +25,7 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:5|max:40',
-            'email' => 'email',
-            'password' => 'required|min:5|max:20'
+            // 'name' => 'required|min:5|max:255'
         ];
     }
 
@@ -52,18 +50,6 @@ class UserRequest extends FormRequest
     {
         return [
             //
-                'name.min' => 'First name should be 5 or more characters',
-               'name.max' => 'First name should be less than 255 characters',
-               'name.required' => 'name is required',
-
-                'email.min' => 'First name should be 5 or more characters',
-               'email.max' => 'First name should be less than 255 characters',
-               'email.email' => 'Please enter a valid email address',
-
-                'password.min' => 'First name should be 5 or more characters',
-               'password.max' => 'First name should be less than 255 characters',
-               'password.required' => 'password is required',
- 
         ];
     }
 }

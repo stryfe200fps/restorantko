@@ -31,13 +31,19 @@ class AddressCrudController extends CrudController
         CRUD::setRoute(config('backpack.base.route_prefix') . '/address');
         CRUD::setEntityNameStrings('address', 'addresses');
         $passed_league_id = \Route::current()->parameter('user_id');
-         if($passed_league_id != null )
+
+         if ($passed_league_id != null && $passed_league_id !== "0") {
             $this->crud->setRoute(config('backpack.base.route_prefix') . '/address/'.$passed_league_id);
-        else 
-            $this->crud->setRoute(config('backpack.base.route_prefix') . '/user');
-        $this->crud->operation('list', function () use ($passed_league_id) {
+            $this->crud->operation('list', function () use ($passed_league_id) {
             $this->crud->addClause('where', 'user_id', $passed_league_id );
-        });
+            });
+         }
+        else {
+            $this->crud->setRoute(config('backpack.base.route_prefix') . '/address/0');
+            $this->crud->denyAccess('create');
+        } 
+
+  
     }
 
       /**
@@ -50,9 +56,8 @@ class AddressCrudController extends CrudController
    
     protected function setupListOperation()
     {
-
-        // CRUD::column('id');
-        CRUD::column('user_id');
+    
+        CRUD::column('user_id')->attribute('name');
         CRUD::column('first_name');
         CRUD::column('last_name');
         CRUD::column('phone_number');
