@@ -52,7 +52,7 @@ class OrderCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('user_id');
+        CRUD::column('user_id')->attribute('name');
         CRUD::column('invoice_no');
         CRUD::column('first_name');
         CRUD::column('last_name');
@@ -96,7 +96,7 @@ class OrderCrudController extends CrudController
         CRUD::addField([
         'name'  => 'separator',
         'type'  => 'custom_html',
-        'value' => '<b>your orders</b> <div style="margin-top:20px; margin-bottom:20px;" class="container "> <div class ="row"> <div class="col-md-12">  <table class="cart"> <thead> <tr> <th>quantity</th> <th>name</th> <th>price</th> </tr> </thead> <tbody class="item">  </tbody> </table> </div> </div>'
+        'value' => '<b>your orders</b> <div style="margin-top:20px; margin-bottom:20px;" class=""> <div class ="row"> <div class="col-md-12">  <table class="cart"> <thead> <tr> <th>quantity</th> <th>name</th> <th>price</th> </tr> </thead> <tbody class="item">  </tbody> </table> </div> </div>'
         ]);
         CRUD::field('invoice_no');
         CRUD::field('first_name');
@@ -109,7 +109,8 @@ class OrderCrudController extends CrudController
                 'class' => 'json-holder'
             ]
         ]);
-        Widget::add()->to('before_content')->type('view')->view('product_order')->someAttr('buratching');
+        
+        Widget::add()->to('before_content')->type('view')->view('product_order');
 
        }
 
@@ -156,7 +157,7 @@ class OrderCrudController extends CrudController
             $orderRow->save();
         }
 
-        // \Alert::success(trans('backpack::crud.insert_success'))->flash();
+        \Alert::success(trans('backpack::crud.insert_success'))->flash();
         return redirect('/admin/order');
     }
 

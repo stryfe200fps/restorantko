@@ -25,6 +25,7 @@ class Product extends Model
     // protected $fillable = [];
     // protected $hidden = [];
     // protected $dates = [];
+    protected $cats = ['image' => 'array'];
 
     /*
     |--------------------------------------------------------------------------
@@ -52,6 +53,10 @@ class Product extends Model
         return 'attr';
     }
     
+    public function setImageAttribute($value)
+    {
+        return [1,2,5];
+    }
     
     /*
     |--------------------------------------------------------------------------

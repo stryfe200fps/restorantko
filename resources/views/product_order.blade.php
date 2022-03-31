@@ -20,38 +20,41 @@
 </table>
 </div></div>
 </div>
-<link href="https://unpkg.com/vanilla-datatables@latest/dist/vanilla-dataTables.min.css" rel="stylesheet" type="text/css">
-<script src="https://unpkg.com/vanilla-datatables@latest/dist/vanilla-dataTables.min.js" type="text/javascript"></script>
-
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 <script>
     $(document).ready(function () {
-        var table = new DataTable(".productCart");
-        var table = new DataTable(".cart", {
+        var table = new simpleDatatables.DataTable(".productCart", {
             searchable: false,
-            "bInfo" : false,
-            info: false
+            paging: false,
+        });
+        var table = new simpleDatatables.DataTable(".cart", {
+            searchable: false,
+            paging: false,
         });
       
     })
     var cart = [];
-
+    var dbPush = [];
     function add(id, price, name)
     {
         cart.push([id, price, name]);
         counts = {};
-
+        dbItem = {} ;
         let count = cart.forEach( function (x) { counts[x] = (counts[x] || 0) + 1;  } )
+         dbPush.forEach( function (x) { dbItem[x] = (dbItem[x] || 0) + 1;  } )
         let item = '';
         let $total = 0;
+        let send = [];
         for (const [key, value] of Object.entries(counts)) {
             item += ` <tr><td> ${value} </td> <td> ${key.split(',')[2] } </td> <td>₱${key.split(',')[1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')} </td> </tr>`;
             $total += value * parseFloat(key.split(',')[1]);
         }
-        item += ` <tr><td>  </td> <td> <b>total</b> </td> <td><b>₱${$total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</b> </td> </tr>`;
+        item += ` <tr><td></td> <td> <b>total</b> </td> <td><b>₱${$total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</b> </td> </tr>`;
 
        $(".item").html(item);
-       $('.json-holder').val(JSON.stringify(counts));
+       $('.json-holder').val(JSON.stringify(dbPush));
     }
 </script>
 
