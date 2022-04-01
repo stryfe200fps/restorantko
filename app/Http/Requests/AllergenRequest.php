@@ -25,7 +25,7 @@ class AllergenRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|max:255|unique:allergens'
+            'name' => 'required|max:50|unique:allergens'
         ];
     }
 
@@ -37,6 +37,7 @@ class AllergenRequest extends FormRequest
     public function attributes()
     {
         return [
+
             //
         ];
     }
@@ -49,7 +50,8 @@ class AllergenRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'name.required' => 'Allergen name is required',
+            'name.unique' => 'This allergen is already taken'
         ];
     }
 }

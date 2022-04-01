@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Http\Requests\AddressRequest;
+use App\Models\Address;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Http\Request;
 
 /**
  * Class AddressCrudController
@@ -15,7 +17,9 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 class AddressCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
+        store as protected parentStore;
+    }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
@@ -42,8 +46,6 @@ class AddressCrudController extends CrudController
             $this->crud->setRoute(config('backpack.base.route_prefix') . '/address/0');
             $this->crud->denyAccess('create');
         } 
-
-  
     }
 
       /**
@@ -53,13 +55,26 @@ class AddressCrudController extends CrudController
      * @return void
      */
 
+     protected function store(Request $request)
+     {
+
+        $user_id = \Route::current()->parameter('user_id');
+        if ( $request['is_primary_address'] ===  "1") {
+            foreach(Address::find($user_id)->get() as $address) {
+                $address->is_primary_address = 0; 
+                $address->save();
+            }
+         }
+         $content = $this->parentStore();
+         
+        return $content;
+     }
    
     protected function setupListOperation()
     {
     
         CRUD::column('user_id')->attribute('name');
-        CRUD::column('first_name');
-        CRUD::column('last_name');
+        CRUD::column('fullName');
         CRUD::column('phone_number');
         CRUD::column('telephone');
         CRUD::column('company');
@@ -98,7 +113,7 @@ class AddressCrudController extends CrudController
             'value' => User::find($user_id)->name
         ]);
         CRUD::field('user_id')->value( $user_id )->type('hidden');
-        CRUD::field('first_name')->value('wew');
+        CRUD::field('first_name');
         CRUD::field('last_name');
         CRUD::field('phone_number');
         CRUD::field('telephone');

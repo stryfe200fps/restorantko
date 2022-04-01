@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         //
-        Schema::table('order_rows', function (Blueprint $table) {
-            $table->integer('quantity');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->decimal('total',17, 3)->change();
         });
 
     }

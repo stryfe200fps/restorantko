@@ -30,6 +30,11 @@ class Order extends Model
        return $this->cartItems; 
     }
 
+    public function getFullNameAttribute()
+    {
+        return $this->attributes['first_name'] .' ' . $this->attributes['last_name'];
+    }
+
     public function setCart($order_id)
     {
         $cartItems[] = $order_id;

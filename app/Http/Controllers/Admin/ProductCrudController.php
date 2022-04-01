@@ -90,17 +90,17 @@ class ProductCrudController extends CrudController
         CRUD::field('name');
         CRUD::field('price')->type('number');
         CRUD::field('description')->type('summernote');
-       $this->crud->addColumn([
-            'name' => 'productImages',
-            'label' => 'Banner Image',
-            'type' => 'array',
-        ]);
-        $this->crud->addField([   
-            'name' => 'productImages',
-            'label' => 'Banner Image',
-            'type' => 'upload_multiple',
-            'upload' => true,
-        ], 'both'); 
+    //    $this->crud->addColumn([
+    //         'name' => 'productImages',
+    //         'label' => 'Banner Image',
+    //         'type' => 'array',
+    //     ]);
+    //     $this->crud->addField([   
+    //         'name' => 'productImages',
+    //         'label' => 'Banner Image',
+    //         'type' => 'upload_multiple',
+    //         'upload' => true,
+    //     ], 'both'); 
 
         CRUD::addField([
             'name' => 'allergens',

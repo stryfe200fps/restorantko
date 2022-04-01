@@ -39,13 +39,18 @@ class OrderRowCrudController extends CrudController
      * 
      * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
-     */
+         */
+    protected function setupShowOperation()
+    {
+        CRUD::column('price')->type('number')->thousands_sep(',')->prefix('₱');
+    }
+
     protected function setupListOperation()
     {
         CRUD::column('product_id');
         CRUD::column('order_id');
         CRUD::column('name');
-        CRUD::column('price');
+        CRUD::column('price')->type('number')->thousands_sep(',')->prefix('₱');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:

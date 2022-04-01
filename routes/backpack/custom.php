@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Order;
 use Illuminate\Support\Facades\Route;
 
 // --------------------------
@@ -26,4 +27,12 @@ Route::group([
     Route::crud('order', 'OrderCrudController');
     Route::crud('order-row', 'OrderRowCrudController');
     // Route::post('order', 'OrderCrudController@addToCart')->name('ajaxRequest.post');
+    Route::post('order/status', 'OrderCrudController@status')->name('status');
+    Route::get('/dashboard/monthly', function () {
+        return Order::selectRaw(' monthname(ordered_at) as month, sum(total) as total_sale')
+        ->groupBy('month')
+        ->orderByRaw('min(ordered_at) desc')
+        ->get();
+
+    });
 }); // this should be the absolute last line of this file

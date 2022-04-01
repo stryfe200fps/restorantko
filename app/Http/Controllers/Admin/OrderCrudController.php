@@ -13,6 +13,7 @@ use Backpack\CRUD\app\Library\Widget;
 use Illuminate\Support\Facades\Cache;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Carbon\Carbon;
 /**
  * Class OrderCrudController
  * @package App\Http\Controllers\Admin
@@ -27,7 +28,9 @@ class OrderCrudController extends CrudController
     }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {
+        show as protected parentShow;
+    }
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -44,40 +47,67 @@ class OrderCrudController extends CrudController
         //  \Alert::add('warning', 'This is a yellow/orange bubble.');
     }
 
+    public function show($request)
+    {
+        $content = $this->parentShow($request);
+        CRUD::column('total')->type('number')->prefix('₱')->thousands_sep(',')->wrapper([ 
+            'element' => 'b'
+        ]) ;
+
+        // $this->crud->addButtonFromView('top', 'add_address', 'add_address', 'end');
+        Widget::add()->to('after_content')->type('view')->view('product_order_list')->total($this->data['entry']->total)->orderId((int)\Route::current()->parameter('id'));
+        Widget::add()->to('after_content')->type('view')->view('vendor.backpack.crud.order_status.set_status')->status($this->data['entry']->status)->orderId((int)\Route::current()->parameter('id'));
+        return $content;
+
+    }
+
+    public function status(Request $request)
+    {
+       $order = Order::where('id', $request['id'])->first();
+       if ($request['status'] === 'delivered') {
+        $order->delivered_at = Carbon::now();
+       }
+       $order->status = $request['status'];
+       $order->save();
+       return 'saved';
+    }
+
     /**
      * Define what happens when the List operation is loaded.
      * 
      * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
      */
+
+
     protected function setupListOperation()
     {
         CRUD::column('user_id')->attribute('name');
         CRUD::column('invoice_no');
-        CRUD::column('first_name');
-        CRUD::column('last_name');
-        CRUD::column('shipping_last_name');
-        CRUD::column('shipping_phone_number');
-        CRUD::column('shipping_address');
-        CRUD::column('shipping_country');
-        CRUD::column('status');
-        CRUD::column('ordered_at');
-        CRUD::column('delivered_at');
-        CRUD::column('total');
-
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
+        CRUD::column('full_name')->label('receiver');
+        $this->crud->addColumn([
+        'name'    => 'status',
+        'label'   => 'status',
+        'wrapper' => [
+            'element' => 'span',
+            'class' => function ($crud, $column, $entry, $related_key) {
+                if ($column['text'] == 'delivered') {
+                    return 'badge badge-success';
+                }
+                if ($column['text'] == 'new') {
+                    return 'badge badge-info';
+                }
+                if ($column['text'] == 'rejected') {
+                    return 'badge badge-error';
+                }
+                return 'badge badge-warning';
+            },
+        ],
+    ]);
+        CRUD::column('ordered_at')->value( fn ($x) => (Carbon::parse($x->ordered_at))->diffForHumans()  );
+        CRUD::column('delivered_at')->value( fn ($x) => $x->delivered_at !== NULL ? (Carbon::parse($x->delivered_at))->diffForHumans() : ''  );
+        CRUD::column('total')->type('number')->prefix('₱')->thousands_sep(',');
     }
-
-    /**
-     * Define what happens when the Create operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
 
     protected function create()
     {
@@ -85,6 +115,7 @@ class OrderCrudController extends CrudController
       
        return $content;
     }
+
 
     protected function setupCreateOperation()
     {
@@ -109,7 +140,13 @@ class OrderCrudController extends CrudController
                 'class' => 'json-holder'
             ]
         ]);
-        
+        CRUD::addField([
+            'name' => 'total',
+            'type' => 'hidden',
+            'attributes' => [
+                'class' => 'total'
+            ]
+        ]);
         Widget::add()->to('before_content')->type('view')->view('product_order');
 
        }
@@ -143,7 +180,7 @@ class OrderCrudController extends CrudController
         $order->shipping_country =  $address->country;
         $order->status = 'new';
         $order->ordered_at = date('Y-m-d H:i:s');
-        $order->total = 0 ;
+        $order->total = (float)$request['total'];
         $order->save();
 
         foreach (json_decode( $request['orders'], true) as $id => $quantity) {
@@ -156,6 +193,8 @@ class OrderCrudController extends CrudController
             $orderRow->quantity = $quantity;
             $orderRow->save();
         }
+
+        
 
         \Alert::success(trans('backpack::crud.insert_success'))->flash();
         return redirect('/admin/order');

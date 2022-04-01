@@ -25,7 +25,7 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:5|max:40',
+            'name' => 'required|max:40',
             'email' => 'email',
             'password' => 'required|min:5|max:20'
         ];
@@ -52,11 +52,9 @@ class UserRequest extends FormRequest
     {
         return [
             //
-                'name.min' => 'First name should be 5 or more characters',
                'name.max' => 'First name should be less than 255 characters',
                'name.required' => 'name is required',
 
-                'email.min' => 'First name should be 5 or more characters',
                'email.max' => 'First name should be less than 255 characters',
                'email.email' => 'Please enter a valid email address',
 
