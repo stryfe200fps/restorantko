@@ -21,6 +21,7 @@ return new class extends Migration
             // $table->foreignId('product_id')->constrained();
             $table->string('name');
             $table->decimal('price');
+            $table->integer('quantity');
             // $table->string('allergen');
             // $table->foreignId('order_id')->constrained();
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');

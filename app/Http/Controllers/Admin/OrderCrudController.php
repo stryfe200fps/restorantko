@@ -166,7 +166,9 @@ class OrderCrudController extends CrudController
                 'class' => 'total'
             ]
         ]);
+
         Widget::add()->to('before_content')->type('view')->view('product_order');
+
 
        }
 

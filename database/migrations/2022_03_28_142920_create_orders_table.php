@@ -39,7 +39,7 @@ return new class extends Migration
             $table->decimal('total');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-
+            $table->timestamps();
         });
     }
 
