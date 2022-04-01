@@ -26,7 +26,7 @@ class AddressCrudController extends CrudController
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
-     * 
+     *
      * @return void
      */
     public function setup()
@@ -45,12 +45,12 @@ class AddressCrudController extends CrudController
         else {
             $this->crud->setRoute(config('backpack.base.route_prefix') . '/address/0');
             $this->crud->denyAccess('create');
-        } 
+        }
     }
 
       /**
      * Define what happens when the List operation is loaded.
-     * 
+     *
      * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
      */
@@ -59,20 +59,21 @@ class AddressCrudController extends CrudController
      {
 
         $user_id = \Route::current()->parameter('user_id');
-        if ( $request['is_primary_address'] ===  "1") {
-            foreach(Address::find($user_id)->get() as $address) {
-                $address->is_primary_address = 0; 
-                $address->save();
-            }
-         }
+        //this is not working..
+        // if ( $request['is_primary_address'] ===  "1") {
+        //     foreach(Address::find($user_id)->get() as $address) {
+        //         $address->is_primary_address = 0;
+        //         $address->save();
+        //     }
+        //  }
          $content = $this->parentStore();
-         
+
         return $content;
      }
-   
+
     protected function setupListOperation()
     {
-    
+
         CRUD::column('user_id')->attribute('name');
         CRUD::column('fullName');
         CRUD::column('phone_number');
@@ -87,13 +88,13 @@ class AddressCrudController extends CrudController
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
+         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']);
          */
     }
 
     /**
      * Define what happens when the Create operation is loaded.
-     * 
+     *
      * @see https://backpackforlaravel.com/docs/crud-operation-create
      * @return void
      */
@@ -109,7 +110,7 @@ class AddressCrudController extends CrudController
             'type' => 'text',
             'attributes' => [
                 'readonly' => 'readonly'
-            ], 
+            ],
             'value' => User::find($user_id)->name
         ]);
         CRUD::field('user_id')->value( $user_id )->type('hidden');
@@ -127,13 +128,13 @@ class AddressCrudController extends CrudController
         /**
          * Fields can be defined using the fluent syntax or array syntax:
          * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
+         * - CRUD::addField(['name' => 'price', 'type' => 'number']));
          */
     }
 
     /**
      * Define what happens when the Update operation is loaded.
-     * 
+     *
      * @see https://backpackforlaravel.com/docs/crud-operation-update
      * @return void
      */

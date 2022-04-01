@@ -34,9 +34,20 @@ class OrderCrudController extends CrudController
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
-     * 
+     *
      * @return void
      */
+
+     function invoiceNumber()
+    {
+    $latest = Order::latest()->first();
+    if (! $latest) {
+        return 'RES0001';
+    }
+    $string = preg_replace("/[^0-9\.]/", '', $latest->invoice_number);
+    return 'RES' . sprintf('%04d', $string+1);
+    }
+
     public function setup()
     {
         CRUD::setModel(\App\Models\Order::class);
@@ -50,7 +61,7 @@ class OrderCrudController extends CrudController
     public function show($request)
     {
         $content = $this->parentShow($request);
-        CRUD::column('total')->type('number')->prefix('₱')->thousands_sep(',')->wrapper([ 
+        CRUD::column('total')->type('number')->prefix('₱')->thousands_sep(',')->wrapper([
             'element' => 'b'
         ]) ;
 
@@ -74,7 +85,7 @@ class OrderCrudController extends CrudController
 
     /**
      * Define what happens when the List operation is loaded.
-     * 
+     *
      * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
      */
@@ -112,7 +123,7 @@ class OrderCrudController extends CrudController
     protected function create()
     {
        $content =  $this->parentCreate();
-      
+
        return $content;
     }
 
@@ -123,13 +134,21 @@ class OrderCrudController extends CrudController
 
         CRUD::field('user_id');
         // CRUD::field('orders')->name('orders');
-       
+
         CRUD::addField([
         'name'  => 'separator',
         'type'  => 'custom_html',
         'value' => '<b>your orders</b> <div style="margin-top:20px; margin-bottom:20px;" class=""> <div class ="row"> <div class="col-md-12">  <table class="cart"> <thead> <tr> <th>quantity</th> <th>name</th> <th>price</th> </tr> </thead> <tbody class="item">  </tbody> </table> </div> </div>'
         ]);
-        CRUD::field('invoice_no');
+        // CRUD::field('invoice_no')->value($this->invoiceNumber())->attributes(['readonly']);
+        CRUD::addField([
+            'name' => 'invoice_no',
+            'type' => 'text',
+            'attributes' => [
+                'readonly' => 'readonly'
+            ],
+            'value' => $this->invoiceNumber()
+        ]);
         CRUD::field('first_name');
         CRUD::field('last_name');
         CRUD::field('email');
@@ -161,9 +180,9 @@ class OrderCrudController extends CrudController
 
         $this->crud->registerFieldEvents();
         $request['additional'] = 'this is an aditional data baby';
-        $order = new Order; 
+        $order = new Order;
 
-        
+
         $order->user_id = $request['user_id'] ;
         $order->invoice_no = $request['invoice_no'];
         $order->first_name =  $request['first_name'];
@@ -194,7 +213,7 @@ class OrderCrudController extends CrudController
             $orderRow->save();
         }
 
-        
+
 
         \Alert::success(trans('backpack::crud.insert_success'))->flash();
         return redirect('/admin/order');
@@ -203,7 +222,7 @@ class OrderCrudController extends CrudController
 
     /**
      * Define what happens when the Update operation is loaded.
-     * 
+     *
      * @see https://backpackforlaravel.com/docs/crud-operation-update
      * @return void
      */
