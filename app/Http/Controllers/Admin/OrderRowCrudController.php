@@ -52,11 +52,7 @@ class OrderRowCrudController extends CrudController
         CRUD::column('name');
         CRUD::column('price')->type('number')->thousands_sep(',')->prefix('₱');
 
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
+
     }
 
     /**
@@ -74,11 +70,6 @@ class OrderRowCrudController extends CrudController
         CRUD::field('name');
         CRUD::field('price');
 
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
-         */
     }
 
     /**

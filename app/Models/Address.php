@@ -14,6 +14,7 @@ class Address extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
+
     public $timestamps = false;
     protected $table = 'addresses';
     // protected $primaryKey = 'id';
@@ -38,6 +39,27 @@ class Address extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
+    public function setPrimaryAddress(int $userId)
+    {
+        $checkAddress = Address::where([
+            'user_id' => $userId,
+            'is_primary_address' => true
+        ])->get();
+
+        if($checkAddress->count() === 0 ) 
+            return false;
+        
+        $currentPrimaryAddress = $checkAddress->first();
+        $currentPrimaryAddress->is_primary_address = false;
+        $currentPrimaryAddress->save();
+    }
+
+    public function userHasAddress(int $userId) 
+    {
+        $address = Address::where('user_id', $userId)->get()->count();
+        return $address;
+    }
 
     /*
     |--------------------------------------------------------------------------

@@ -17,112 +17,87 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 class ProductCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
+        store as protected parentStore;
+    }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {
         show as protected parentShow;
     }
-
-    /**
-     * Configure the CrudPanel object. Apply settings to all operations.
-     * 
-     * @return void
-     */
+    
     public function setup()
     {
         CRUD::setModel(\App\Models\Product::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/product');
         CRUD::setEntityNameStrings('product', 'products');
-        // CRUD::enableExportButtons();
-    }
-
-    /**
-     * Define what happens when the List operation is loaded.
-     * 
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     * @return void
-     */
-    protected function setupShowOperation()
-    {
-        // CRUD::column('wew')->value('this is a custom value baby ');
-        $this->setupListOperation();
-        // dd( $this->crud->getEntries()[0]->productImages );
-    //  CRUD::column('productImage')->height('300px')->width('200px')->type('image')->disk('local')->name('productImages')->model('App\Models\ProductImage')->value(
-    //         fn ($q)  => $q
-    //     );
-        //  dd($this->id->getModel);
     }
 
     protected function setupListOperation()
     {
+        CRUD::addColumns([
+            [
+                'name' => 'productImages',
+                'height' => '300px',
+                'width' => '200px',
+                'type' => 'image',
+                'disk' => 'local',
+                'name' => 'productImages',
+                'model' => 'App\Models\ProductImage',
+                'value' => fn ($q)  => $q->productImages[0]->file_path ?? ''
+            ],
+            [   'name' => 'SKU' ],
+            [   'name' => 'name' ],
+            [   'name' => 'price',
+                'type' => 'number',
+                'thousands_sep' => ',',
+                'prefix' => '₱'
+            ],
+            [
+                'name' => 'allergens',
+                'model' => 'App\Models\Allergen'
+            ]
+            ]);
 
-        CRUD::column('productImages')->height('300px')->width('200px')->type('image')->disk('local')->name('productImages')->model('App\Models\ProductImage')->value(
-            fn ($q)  => $q->productImages[0]->file_path ?? ''
-        );
-        // CRUD::column('productBanner')->name('productBanner')->type('image');
-        CRUD::column('SKU');
-        CRUD::column('name');
-        CRUD::column('price')->type('number')->thousands_sep(',')->prefix('₱');
-        CRUD::column('allergens')->name('allergens')->model("App\Models\Allergen");
-        // CRUD::column('file_path')->name('file_path')->model("App\Models\ProductImage");
         $this->crud->addButtonFromView('line', 'moderate', 'moderate', 'beginning');
-        // CRUD::column('description');
-
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
     }
 
-    /**
-     * Define what happens when the Create operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
     protected function setupCreateOperation()
     {
         CRUD::setValidation(ProductRequest::class);
-         
 
-        CRUD::field('name');
-        CRUD::field('price')->type('number');
-        CRUD::field('description')->type('summernote');
-    //    $this->crud->addColumn([
-    //         'name' => 'productImages',
-    //         'label' => 'Banner Image',
-    //         'type' => 'array',
-    //     ]);
-    //     $this->crud->addField([   
-    //         'name' => 'productImages',
-    //         'label' => 'Banner Image',
-    //         'type' => 'upload_multiple',
-    //         'upload' => true,
-    //     ], 'both'); 
-
-        CRUD::addField([
-            'name' => 'allergens',
-            'type' => 'checklist',
-            'model' => "App\Models\Allergen"
+        CRUD::addFields([
+            [   'name' => 'name'   ],
+            [
+                'name' => 'price',
+                'type' => 'number'   
+            ],
+            [
+                'name' => 'description',
+                'type' => 'summernote'
+            ],
+            [
+                'name' => 'allergens',
+                'type' => 'checklist',
+                'model' => 'App\Models\Allergen'
+            ],
+            [
+                'name' => 'image',
+                'label' => 'Image',
+                'type' => 'base64_image',
+                'crop' => true
+            ]
         ]);
-       
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
-         */
+      
     }
 
-    /**
-     * Define what happens when the Update operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-update
-     * @return void
-     */
+    public function store(Request $request)
+    {
+        dd($request);
+        return $this->parentStore();
+    }
 
-     public function moderate($id)
+    public function moderate($id)
      {
         $this->crud->addField([ // image
             'label' => "Thumbnail Image",
@@ -143,8 +118,6 @@ class ProductCrudController extends CrudController
         $this->setupCreateOperation();
     }
 
-    
-
     public function upload(Request $request)
     {
 
@@ -157,7 +130,6 @@ class ProductCrudController extends CrudController
             'sort_order' =>  0
         ]);
         }
-
         return response()->json(['success'=>$imageName]);
 
     }

@@ -25,7 +25,7 @@ class OrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'invoice_no' => 'required|min:5|max:255',
+            'invoice_no' => 'required|min:5|max:255|unique:orders',
             'orders' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
@@ -53,7 +53,11 @@ class OrderRequest extends FormRequest
     public function messages()
     {
         return [
-            'orders.required' => 'You need to have atleast 1 order'
+            'orders.required' => 'You need to have atleast 1 order',
+            'invoice_no.unique' => 'Please refresh the page to generate new Invoice Number',
+            'first_name.required' => 'first name is required',
+            'last_name.required' => 'last name is required',
+            'email.email' => 'please enter a valid email address'
         ];
     }
 }

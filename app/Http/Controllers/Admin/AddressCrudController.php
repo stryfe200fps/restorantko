@@ -19,6 +19,7 @@ class AddressCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
         store as protected parentStore;
+        update as protected parentUpdate;
     }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
@@ -29,67 +30,81 @@ class AddressCrudController extends CrudController
      *
      * @return void
      */
+    private $userId;
     public function setup()
     {
         CRUD::setModel(\App\Models\Address::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/address');
         CRUD::setEntityNameStrings('address', 'addresses');
-        $passed_league_id = \Route::current()->parameter('user_id');
 
-         if ($passed_league_id != null && $passed_league_id !== "0") {
-            $this->crud->setRoute(config('backpack.base.route_prefix') . '/address/'.$passed_league_id);
-            $this->crud->operation('list', function () use ($passed_league_id) {
-            $this->crud->addClause('where', 'user_id', $passed_league_id );
+        $this->userId = \Route::current()->parameter('user_id');
+
+        $this->crud->orderBy('is_primary_address', 'DESC');
+         if ($this->userId != null && $this->userId !== "0") {
+            $this->crud->setRoute(config('backpack.base.route_prefix') . '/address/'.$this->userId);
+
+            $this->crud->operation('list', function () {
+                $this->crud->addClause('where', 'user_id', $this->userId );
             });
          }
         else {
             $this->crud->setRoute(config('backpack.base.route_prefix') . '/address/0');
-            $this->crud->denyAccess('create');
+            $this->crud->denyAccess([ 'create', 'update', 'delete']);
         }
     }
 
-      /**
-     * Define what happens when the List operation is loaded.
-     *
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     * @return void
-     */
-
-     protected function store(Request $request)
+     protected function store(AddressRequest $request)
      {
+        if ($this->crud->model->userHasAddress($this->userId) === 0 ) 
+            $request['is_primary_address'] = true;
+        else if ($request['is_primary_address'] ===  "1") 
+            $this->crud->model->setPrimaryAddress($this->userId);
 
-        $user_id = \Route::current()->parameter('user_id');
-        //this is not working..
-        // if ( $request['is_primary_address'] ===  "1") {
-        //     foreach(Address::find($user_id)->get() as $address) {
-        //         $address->is_primary_address = 0;
-        //         $address->save();
-        //     }
-        //  }
-         $content = $this->parentStore();
+        return $this->parentStore();
+     }
 
-        return $content;
+     protected function update(AddressRequest $request)
+     {
+        if ( $request['is_primary_address'] ===  "1") 
+            $this->crud->model->setPrimaryAddress($this->userId);
+
+        return $this->parentUpdate();
      }
 
     protected function setupListOperation()
     {
+        CRUD::addColumns([
+            [
+                'name' => 'user_id',
+                'attribute' => 'name'
+            ],
+            [
+                'name' => 'fullName',
+                'label' => 'Full Name'
+            ],
+            [   'name' => 'phone_number' ],
+            [   'name' => 'address' ],
+            [   'name' => 'country']
+        ]);
 
-        CRUD::column('user_id')->attribute('name');
-        CRUD::column('fullName');
-        CRUD::column('phone_number');
-        CRUD::column('telephone');
-        CRUD::column('company');
-        CRUD::column('address');
-        CRUD::column('street');
-        CRUD::column('zip_code');
-        CRUD::column('country');
-        CRUD::column('is_primary_address');
-
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']);
-         */
+        CRUD::addColumn([
+            'name' => 'is_primary_address',
+            'label' => 'Status',
+            'value' => function ($column) {
+                if($column->is_primary_address === 1) 
+                    return 'default';
+                return 'inactive';
+            },
+            'wrapper' => [
+                'element' => 'span',
+                'class' => function ($crud, $column) {
+                    if ($column['text'] === 'default')
+                        return 'badge badge-success';
+                    return 'badge badge-error';
+                }
+            ]
+                
+        ]);
     }
 
     /**
@@ -100,36 +115,31 @@ class AddressCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(AddressRequest::class);
-
-        // dd($this->crud->entry);
-        // CRUD::field('id');
-        $user_id = \Route::current()->parameter('user_id');
-        CRUD::addField([
-            'name' => 'User',
-            'type' => 'text',
-            'attributes' => [
-                'readonly' => 'readonly'
+        CRUD::addFields([
+            [
+                'name' => 'User',
+                'type' => 'text',
+                'attributes' => [
+                    'readonly' => 'readonly'
+                ],
+                'value' => User::find($this->userId)->name
             ],
-            'value' => User::find($user_id)->name
+            [
+                'name' => 'user_id',
+                'value' => $this->userId,
+                'type' => 'hidden'
+            ],
+            [   'name' => 'first_name' ],
+            [   'name' => 'last_name' ],
+            [   'name' => 'phone_number' ],
+            [   'name' => 'telephone' ],
+            [   'name' => 'company' ],
+            [   'name' => 'address' ],
+            [   'name' => 'street' ],
+            [   'name' => 'zip_code' ],
+            [   'name' => 'country' ],
+            [   'name' => 'is_primary_address' ],
         ]);
-        CRUD::field('user_id')->value( $user_id )->type('hidden');
-        CRUD::field('first_name');
-        CRUD::field('last_name');
-        CRUD::field('phone_number');
-        CRUD::field('telephone');
-        CRUD::field('company');
-        CRUD::field('address');
-        CRUD::field('street');
-        CRUD::field('zip_code');
-        CRUD::field('country');
-        CRUD::field('is_primary_address');
-
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number']));
-         */
     }
 
     /**

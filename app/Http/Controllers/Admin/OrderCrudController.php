@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use DateTime;
+use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Address;
 use App\Models\Product;
-use Illuminate\Http\Request;
-use App\Http\Requests\OrderRequest;
 use App\Models\OrderRow;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\OrderRequest;
 use Backpack\CRUD\app\Library\Widget;
 use Illuminate\Support\Facades\Cache;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
-use Carbon\Carbon;
 /**
  * Class OrderCrudController
  * @package App\Http\Controllers\Admin
@@ -31,23 +32,7 @@ class OrderCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation {
         show as protected parentShow;
     }
-
-    /**
-     * Configure the CrudPanel object. Apply settings to all operations.
-     *
-     * @return void
-     */
-
-     function invoiceNumber()
-    {
-    $latest = Order::latest()->first();
-    if (! $latest) {
-        return 'RES0001';
-    }
-    $string = preg_replace("/[^0-9\.]/", '', $latest->invoice_number);
-    return 'RES' . sprintf('%04d', $string+1);
-    }
-
+    
     public function setup()
     {
         CRUD::setModel(\App\Models\Order::class);
@@ -55,7 +40,6 @@ class OrderCrudController extends CrudController
         CRUD::setEntityNameStrings('order', 'orders');
         CRUD::denyAccess('update');
         CRUD::denyAccess('delete');
-        //  \Alert::add('warning', 'This is a yellow/orange bubble.');
     }
 
     public function show($request)
@@ -65,11 +49,8 @@ class OrderCrudController extends CrudController
             'element' => 'b'
         ]) ;
 
-        // $this->crud->addButtonFromView('top', 'add_address', 'add_address', 'end');
         Widget::add()->to('after_content')->type('view')->view('product_order_list')->total($this->data['entry']->total)->orderId((int)\Route::current()->parameter('id'));
-        Widget::add()->to('after_content')->type('view')->view('vendor.backpack.crud.order_status.set_status')->status($this->data['entry']->status)->orderId((int)\Route::current()->parameter('id'));
         return $content;
-
     }
 
     public function status(Request $request)
@@ -83,108 +64,109 @@ class OrderCrudController extends CrudController
        return 'saved';
     }
 
-    /**
-     * Define what happens when the List operation is loaded.
-     *
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     * @return void
-     */
-
-
     protected function setupListOperation()
     {
-        CRUD::column('user_id')->attribute('name');
-        CRUD::column('invoice_no');
-        CRUD::column('full_name')->label('receiver');
-        $this->crud->addColumn([
-        'name'    => 'status',
-        'label'   => 'status',
-        'wrapper' => [
-            'element' => 'span',
-            'class' => function ($crud, $column, $entry, $related_key) {
-                if ($column['text'] == 'delivered') {
-                    return 'badge badge-success';
-                }
-                if ($column['text'] == 'new') {
-                    return 'badge badge-info';
-                }
-                if ($column['text'] == 'rejected') {
-                    return 'badge badge-error';
-                }
-                return 'badge badge-warning';
-            },
-        ],
-    ]);
-        CRUD::column('ordered_at')->value( fn ($x) => (Carbon::parse($x->ordered_at))->diffForHumans()  );
-        CRUD::column('delivered_at')->value( fn ($x) => $x->delivered_at !== NULL ? (Carbon::parse($x->delivered_at))->diffForHumans() : ''  );
-        CRUD::column('total')->type('number')->prefix('₱')->thousands_sep(',');
+        CRUD::addColumns([
+            [
+                'name' => 'user_id',
+                'attribute' => 'name'
+            ],
+            [   'name' => 'invoice_no' ],
+            [
+                'name' => 'full_name',
+                'label' => 'receiver'
+            ],
+            [
+                'name' => 'status',
+                'label' => 'status',
+                'wrapper' => [
+                    'element' => 'span',
+                    'class' => function ($crud, $column) {
+                        if ($column['text'] === 'delivered') 
+                            return 'badge badge-success';
+                        if ($column['text'] == 'new') 
+                            return 'badge badge-info';
+                        if ($column['text'] == 'rejected') 
+                        return 'badge badge-error';
+
+                        return 'badge badge-warning';
+                    }
+                ]
+            ],
+            [
+                'name' => 'ordered_at',
+                'value' => fn ($order) => (Carbon::parse($order->ordered_at))->diffForHumans() 
+            ],
+            [
+                'name' => 'delivered_at',
+                'value' => fn ($order) => $order->delivered_at !== NULL ? Carbon::parse($order->delivered_at)->diffForHumans() : '' 
+            ],
+            [
+                'name' => 'total',
+                'type' => 'number',
+                'prefix' => '₱',
+                'thousands_sep' => ','
+            ]
+        ]);
     }
-
-    protected function create()
-    {
-       $content =  $this->parentCreate();
-
-       return $content;
-    }
-
 
     protected function setupCreateOperation()
     {
         CRUD::setValidation(OrderRequest::class);
-
-        CRUD::field('user_id');
-        // CRUD::field('orders')->name('orders');
-
-        CRUD::addField([
-        'name'  => 'separator',
-        'type'  => 'custom_html',
-        'value' => '<b>your orders</b> <div style="margin-top:20px; margin-bottom:20px;" class=""> <div class ="row"> <div class="col-md-12">  <table class="cart"> <thead> <tr> <th>quantity</th> <th>name</th> <th>price</th> </tr> </thead> <tbody class="item">  </tbody> </table> </div> </div>'
-        ]);
-        // CRUD::field('invoice_no')->value($this->invoiceNumber())->attributes(['readonly']);
-        CRUD::addField([
-            'name' => 'invoice_no',
-            'type' => 'text',
-            'attributes' => [
-                'readonly' => 'readonly'
+        Widget::add()->to('before_content')->type('view')->view('product_order'); // widgets to show the ordering card
+        CRUD::addFields(
+        [ 
+            [
+                'name'  => 'separator',
+                'value' => '<table class="cart"> <thead> <tr> <th>quantity</th> <th>name</th> <th>price</th> 
+                            </tr> </thead> <tbody class="item">  </tbody> </table> ',
+                'type' => 'custom_html'
             ],
-            'value' => $this->invoiceNumber()
-        ]);
-        CRUD::field('first_name');
-        CRUD::field('last_name');
-        CRUD::field('email');
-        CRUD::addField([
-            'name' => 'orders',
-            'type' => 'hidden',
-            'attributes' => [
-                'class' => 'json-holder'
+            [   'name' => 'user_id' ],
+            [ 
+                'name' => 'invoice_no', 
+                'type' => 'text', 
+                'value' => $this->crud->model->generateInvoiceNumber(),
+                'attributes' => [
+                    'readonly' => 'readonly'
+                ]
+            ],
+            [   'name' => 'first_name' ],
+            [   'name' => 'last_name' ],
+            [   'name' => 'email' ],
+            // HIDDEN FIELDS
+            [ 
+                'name' => 'orders', 
+                'type' => 'hidden',
+                'attributes' => [
+                'class' => 'json-holder' // field where orders are stored via json format
+                ]
+            ],
+            [
+                'name' => 'total',
+                'type' => 'hidden',
+                'attributes' => [
+                    'class' => 'total' //field where order total is stored
+                ]
             ]
         ]);
-        CRUD::addField([
-            'name' => 'total',
-            'type' => 'hidden',
-            'attributes' => [
-                'class' => 'total'
-            ]
-        ]);
+    }
 
-        Widget::add()->to('before_content')->type('view')->view('product_order');
-
-
-       }
-
-    public function store(OrderRequest $request)
+    public function store()
     {
-        $address = Address::where('user_id', $request['user_id'])->first();
+        $request = $this->crud->validateRequest();
+        $address = Address::where([
+            'user_id' => $request['user_id'],
+            'is_primary_address' => true
+        ]
+        )->first();
+
         if ($address === NULL) {
-        \Alert::add('error', 'This user do not have any addresses')->flash();
-        return redirect('/admin/order');
+        \Alert::add('error', 'This user do not have any addresses or no primary address')->flash();
+        return redirect('/admin/address/'. $request['user_id']);
         }
 
-        $this->crud->registerFieldEvents();
-        $request['additional'] = 'this is an aditional data baby';
         $order = new Order;
-
-
         $order->user_id = $request['user_id'] ;
         $order->invoice_no = $request['invoice_no'];
         $order->first_name =  $request['first_name'];
@@ -215,13 +197,9 @@ class OrderCrudController extends CrudController
             $orderRow->save();
         }
 
-
-
         \Alert::success(trans('backpack::crud.insert_success'))->flash();
         return redirect('/admin/order');
     }
-
-
     /**
      * Define what happens when the Update operation is loaded.
      *
