@@ -2,24 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use DateTime;
 use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Address;
 use App\Models\Product;
 use App\Models\OrderRow;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Requests\OrderRequest;
 use Backpack\CRUD\app\Library\Widget;
-use Illuminate\Support\Facades\Cache;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
-/**
- * Class OrderCrudController
- * @package App\Http\Controllers\Admin
- * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
- */
+
 class OrderCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
@@ -196,16 +189,10 @@ class OrderCrudController extends CrudController
             $orderRow->quantity = $quantity;
             $orderRow->save();
         }
-
         \Alert::success(trans('backpack::crud.insert_success'))->flash();
         return redirect('/admin/order');
     }
-    /**
-     * Define what happens when the Update operation is loaded.
-     *
-     * @see https://backpackforlaravel.com/docs/crud-operation-update
-     * @return void
-     */
+   
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();

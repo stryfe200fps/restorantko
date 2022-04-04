@@ -44,7 +44,6 @@
     $(document).ready(function () {
         var table = new simpleDatatables.DataTable(".productCart", {
             searchable: false,
-            paging: false,
         });
         var table = new simpleDatatables.DataTable(".cart", {
             searchable: false,

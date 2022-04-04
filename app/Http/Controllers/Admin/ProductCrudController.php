@@ -9,11 +9,6 @@ use App\Http\Requests\ProductRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
-/**
- * Class ProductCrudController
- * @package App\Http\Controllers\Admin
- * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
- */
 class ProductCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
@@ -62,6 +57,12 @@ class ProductCrudController extends CrudController
         $this->crud->addButtonFromView('line', 'moderate', 'moderate', 'beginning');
     }
 
+    protected function store(Request $request)
+    {
+        dd($request);
+       return $this->parentStore();
+    }
+
     protected function setupCreateOperation()
     {
         CRUD::setValidation(ProductRequest::class);
@@ -81,21 +82,20 @@ class ProductCrudController extends CrudController
                 'type' => 'checklist',
                 'model' => 'App\Models\Allergen'
             ],
-            [
-                'name' => 'image',
-                'label' => 'Image',
-                'type' => 'base64_image',
-                'crop' => true
-            ]
+            
         ]);
-      
+
+     CRUD::addField(
+        [
+        'label' => "Article Image",
+        'name' => "image",
+        'type' => 'upload_multiple',
+        'crop' => true, // set to true to allow cropping, false to disable
+        'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
+        ] 
+        ) ;
     }
 
-    public function store(Request $request)
-    {
-        dd($request);
-        return $this->parentStore();
-    }
 
     public function moderate($id)
      {
@@ -133,6 +133,4 @@ class ProductCrudController extends CrudController
         return response()->json(['success'=>$imageName]);
 
     }
-
-
 }

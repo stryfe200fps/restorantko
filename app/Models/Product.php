@@ -7,6 +7,9 @@ use BinaryCats\Sku\HasSku;
 use App\Models\ProductImage;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -17,7 +20,13 @@ class Product extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
+    public static function boot()
+{
+    parent::boot();
+    static::deleting(function($obj) {
+        Storage::delete(Str::replaceFirst('storage/','public/', $obj->image));
+    });
+    }
     protected $table = 'products';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
@@ -25,7 +34,10 @@ class Product extends Model
     // protected $fillable = [];
     // protected $hidden = [];
     // protected $dates = [];
-    protected $cats = ['image' => 'array'];
+
+    protected $appends = ['image'];
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -35,6 +47,11 @@ class Product extends Model
     public function allergens()
     {
         return $this->belongsToMany(Allergen::class);
+    }
+    
+    public function setImageAttribute($value)
+    {
+ 
     }
 
     public function productImages()
@@ -47,16 +64,11 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 
-
     public function getItNow()
     {
         return 'attr';
     }
     
-    public function setImageAttribute($value)
-    {
-        return [1,2,5];
-    }
     
     /*
     |--------------------------------------------------------------------------
