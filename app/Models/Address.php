@@ -64,7 +64,6 @@ class Address extends Model
         if($this->userHasAddress((int)$this->attributes['user_id']) === 0) {
             $this->attributes['is_primary_address'] = true;
         }
-
     }
 
     public function userHasAddress(int $userId) 
@@ -72,6 +71,7 @@ class Address extends Model
         $address = Address::where('user_id', $userId)->get()->count();
         return $address;
     }
+    
 
     /*
     |--------------------------------------------------------------------------

@@ -1,6 +1,10 @@
 <?php
 
+use App\Models\Address;
+use Carbon\Carbon;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 // --------------------------
@@ -34,5 +38,23 @@ Route::group([
         ->groupBy('month')
         ->orderByRaw('min(ordered_at) desc')
         ->get();
+    });
+
+    Route::get('/dashboard/sales/all', function () {
+        return Order::where('status', 'delivered')->sum('total');
+    });
+
+    Route::get('/dashboard/sales/today', function () {
+       return Order::where('status', 'delivered')->whereDate('ordered_at', Carbon::today())->sum('total');
+    });
+    Route::get('/dashboard/user/all', function () {
+        return User::get()->count();
+    });
+    Route::get('/dashboard/product/all', function () {
+        return Product::get()->count();
+    });
+
+    Route::get('address/user/get/{id}', function ($id) {
+        return Address::where('user_id', $id)->get();
     });
 }); // this should be the absolute last line of this file

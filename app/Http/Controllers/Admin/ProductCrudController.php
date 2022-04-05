@@ -55,10 +55,7 @@ class ProductCrudController extends CrudController
         $this->crud->addButtonFromView('line', 'moderate', 'moderate', 'beginning');
     }
 
-    protected function store(Request $request)
-    {
-       return $this->parentStore();
-    }
+
 
     protected function setupCreateOperation()
     {
@@ -87,8 +84,9 @@ class ProductCrudController extends CrudController
         'name' => "image",
         'type' => 'upload',
         'upload' => true,
-        'crop' => true, // set to true to allow cropping, false to disable
-        'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
+        'crop' => true, 
+        'aspect_ratio' => 1, 
+        'prefix' => 'storage/'
         ] 
         ) ;
     }

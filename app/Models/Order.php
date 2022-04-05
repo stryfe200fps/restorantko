@@ -46,7 +46,7 @@ class Order extends Model
     if (! $latest) 
         return 'RES00001';
     return 'RES' . sprintf('%05d', preg_replace("/[^0-9\.]/", '', $latest->invoice_no) +1);
-
     }
+
     
 }

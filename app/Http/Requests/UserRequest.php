@@ -26,7 +26,7 @@ class UserRequest extends FormRequest
     {
         return [
             'name' => 'required|max:40',
-            'email' => 'email',
+            'email' => 'email|unique:users',
             'password' => 'required|min:5|max:20'
         ];
     }
@@ -57,6 +57,7 @@ class UserRequest extends FormRequest
 
                'email.max' => 'First name should be less than 255 characters',
                'email.email' => 'Please enter a valid email address',
+               'email.unique' => 'This email is already taken',
 
                 'password.min' => 'First name should be 5 or more characters',
                'password.max' => 'First name should be less than 255 characters',

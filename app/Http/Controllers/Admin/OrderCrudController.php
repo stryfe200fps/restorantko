@@ -43,6 +43,7 @@ class OrderCrudController extends CrudController
         ]) ;
 
         Widget::add()->to('after_content')->type('view')->view('product_order_list')->total($this->data['entry']->total)->orderId((int)\Route::current()->parameter('id'));
+        Widget::add()->to('after_content')->type('view')->view('vendor.backpack.crud.order_status.set_status')->status($this->data['entry']->status)->orderId((int)\Route::current()->parameter('id'));
         return $content;
     }
 
@@ -116,6 +117,15 @@ class OrderCrudController extends CrudController
                 'type' => 'custom_html'
             ],
             [   'name' => 'user_id' ],
+            [
+                'name'  => 'address',
+                'value' => '<div class="address"> your address </div>',
+                'type' => 'custom_html',
+                'attributes' => [
+                    'element' => 'div',
+                    'class' => 'address-holder' // field where orders are stored via json format
+                ]
+            ],
             [ 
                 'name' => 'invoice_no', 
                 'type' => 'text', 
@@ -148,16 +158,11 @@ class OrderCrudController extends CrudController
     public function store()
     {
         $request = $this->crud->validateRequest();
-        $address = Address::where([
-            'user_id' => $request['user_id'],
-            'is_primary_address' => true
-        ]
-        )->first();
-
-        if ($address === NULL) {
+        if ($request['custom_address'] === NULL ) {
         \Alert::add('error', 'This user do not have any addresses or no primary address')->flash();
         return redirect('/admin/address/'. $request['user_id']);
         }
+        $address = Address::where('id', (int)$request['custom_address'])->first();
 
         $order = new Order;
         $order->user_id = $request['user_id'] ;

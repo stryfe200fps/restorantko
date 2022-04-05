@@ -17,7 +17,7 @@
     <tr > 
         <td> {{ $product->name }} </td>
         <td>  ₱{{ number_format( $product->price ) }}</td>
-        <td> <input type="number" value="1" style="width:55px;" min="1" onkeypress="ignoreMe(event)" oncopy="return false" onpaste="return false" id="n{{$product->id}}">  </td>
+        <td> <input type="number" value="1" class="form-control" style="width:70px;" min="1" onkeypress="ignoreMe(event)" oncopy="return false" onpaste="return false" id="n{{$product->id}}">  </td>
         <td> 
             <button class="btn btn-success" onclick="add({{ $product->id}} , {{$product->price}}  , {{ json_encode($product->name) }}, $('#n{{$product->id}}').val()  )" ><i class="fa fa-ban"></i> order </button> 
             <button onclick="reset({{ $product->id }})" class="btn btn-error">reset</button>
@@ -35,6 +35,9 @@
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 
 <script>
+
+
+
     function ignoreMe(e)
     {
     if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57)
@@ -46,10 +49,42 @@
 
         e.preventDefault();
     }
-    
+    }
+
+    function initAddress()
+    {
+        let id =  $('select[name="user_id"]').val() ;
+        $.get(`/admin/address/user/get/${id}`, function (gee) {
+              let address_select = '<label> user address </label><select name="custom_address" class="form-control">';
+           
+              for (const add of gee) {
+                address_select += `<option value='${add.id}' >${add.address} ${add.street} ${add.country}</option>`
+              }
+
+              address_select += '</select>';
+              $('.address').html(address_select);
+
+          });
     }
 
     $(document).ready(function () {
+        initAddress();
+        $('select[name="user_id"]').on('change', function (e) {
+        var optionSelected = $("option:selected", this);
+        var valueSelected = this.value;
+          $.get(`/admin/address/user/get/${this.value}`, function (gee) {
+              let address_select = '<label> user address </label><select name="custom_address" class="form-control">';
+           
+              for (const add of gee) {
+                address_select += `<option value='${add.id}' >${add.address} ${add.street} ${add.country}</option>`
+              }
+
+              address_select += '</select>';
+              $('.address').html(address_select);
+
+          });
+    });
+
     var tableCart = new simpleDatatables.DataTable(".productCart", {
         perPage: 2        
     });
@@ -65,6 +100,11 @@
    
     function add(id, price, name, quantity)
     {
+        if(quantity == '')
+            return false;
+        if(quantity == 0)
+            return false;
+        reset(id);
         let counts = {}
         cart.push([id, price, name, quantity]);
         cart.forEach( function (x) { counts[x] = x.quantity  } )
@@ -85,12 +125,11 @@
     }
 
     function reset(id) {
- let counts = {}
+        let counts = {}
         cart = cart.filter(function (item) {
             return item[0] != id;
         })
         cart.forEach( function (x) { counts[x] = x.quantity  } )
-       console.log('----remove------')
         console.log(cart);
         let item = '';
         let $total = 0;
