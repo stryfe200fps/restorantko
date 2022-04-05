@@ -1,24 +1,32 @@
 
 
 <div class="row">
-<div class="col-md-8">
+<div class="col-md-12">
 <div class="card"> 
 <table class="productCart" >
+<thead>
 <tr> 
     <th>name</th>
     <th>price</th>
     <th>quantity</th>
     <th>action</th>
 </tr>
-
+</thead>
+<tbody id="orderList">
 @foreach ( App\Models\Product::get() as $product )
-    <tr> 
+    <tr > 
         <td> {{ $product->name }} </td>
         <td>  ₱{{ number_format( $product->price ) }}</td>
         <td> <input type="number" value="1" style="width:55px;" min="1" onkeypress="ignoreMe(event)" oncopy="return false" onpaste="return false" id="n{{$product->id}}">  </td>
-        <td> <button onclick="add({{ $product->id}} , {{$product->price}}  , {{ json_encode($product->name) }}  )" ><i class="fa fa-ban"></i> add to cart </button> </td>
+        <td> 
+            <button class="btn btn-success" onclick="add({{ $product->id}} , {{$product->price}}  , {{ json_encode($product->name) }}, $('#n{{$product->id}}').val()  )" ><i class="fa fa-ban"></i> order </button> 
+            <button onclick="reset({{ $product->id }})" class="btn btn-error">reset</button>
+        </td>
+
+        {{-- <td> <button class="btn btn-success" name="wow1" > <i class="fa fa-ban"></i> order </button> </td> --}}
     </tr>
 @endforeach
+</tbody>
 </table>
 </div></div>
 </div>
@@ -42,37 +50,59 @@
     }
 
     $(document).ready(function () {
-        var table = new simpleDatatables.DataTable(".productCart", {
-            searchable: false,
-        });
-        var table = new simpleDatatables.DataTable(".cart", {
-            searchable: false,
-            paging: false,
-        });
-      
+    var tableCart = new simpleDatatables.DataTable(".productCart", {
+        perPage: 2        
+    });
+    var table = new simpleDatatables.DataTable(".cart", {
+        searchable: false,
+        paging: false,
+    });
+
+        
     })
+
     var cart = [];
-    var dbPush = [];
-    function add(id, price, name)
+   
+    function add(id, price, name, quantity)
     {
-        cart.push([id, price, name]);
-        dbPush.push(id);
-        counts = {};
-        dbItem = {} ;
-        let count = cart.forEach( function (x) { counts[x] = parseInt($('#n'+ x).val());  } )
-         dbPush.forEach( function (x) { dbItem[x] = parseInt($('#n'+ x).val());  } )
+        let counts = {}
+        cart.push([id, price, name, quantity]);
+        cart.forEach( function (x) { counts[x] = x.quantity  } )
+
         let item = '';
         let $total = 0;
         for (const [key, value] of Object.entries(counts)) {
-            item += ` <tr><td> ${value} </td> <td> ${key.split(',')[2] } </td> <td>₱${key.split(',')[1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')} </td> </tr>`;
-            $total += value * parseFloat(key.split(',')[1]);
+            item += ` <tr><td> ${key.split(',')[3]} </td> <td> ${key.split(',')[2] } </td> <td>₱${key.split(',')[1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')} </td> </tr>`;
+            $total += key.split(',')[3] * parseFloat(key.split(',')[1]);
         }
         item += ` <tr><td></td> <td> <b>total</b> </td> <td><b>₱${$total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</b> </td> </tr>`;
         
        $(".item").html(item);
        $(".total").val($total);
-       $('.json-holder').val(JSON.stringify(dbItem));
-       return false;
+       $('.json-holder').val(JSON.stringify(cart));
+       console.log('----cart------')
+       console.log(cart);
     }
-</script>
 
+    function reset(id) {
+ let counts = {}
+        cart = cart.filter(function (item) {
+            return item[0] != id;
+        })
+        cart.forEach( function (x) { counts[x] = x.quantity  } )
+       console.log('----remove------')
+        console.log(cart);
+        let item = '';
+        let $total = 0;
+        for (const [key, value] of Object.entries(counts)) {
+            item += ` <tr><td> ${key.split(',')[3]} </td> <td> ${key.split(',')[2] } </td> <td>₱${key.split(',')[1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')} </td> </tr>`;
+            $total += key.split(',')[3] * parseFloat(key.split(',')[1]);
+        }
+        item += ` <tr><td></td> <td> <b>total</b> </td> <td><b>₱${$total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</b> </td> </tr>`;
+        
+       $(".item").html(item);
+       $(".total").val($total);
+       $('.json-holder').val(JSON.stringify(cart));
+    }
+
+</script>

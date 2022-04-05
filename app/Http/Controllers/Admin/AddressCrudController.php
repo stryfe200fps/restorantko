@@ -44,9 +44,7 @@ class AddressCrudController extends CrudController
 
      protected function store(AddressRequest $request)
      {
-        if ($this->crud->model->userHasAddress($this->userId) === 0 ) 
-            $request['is_primary_address'] = true;
-        else if ($request['is_primary_address'] ===  "1") 
+        if ($request['is_primary_address'] ===  "1") 
             $this->crud->model->setPrimaryAddress($this->userId);
 
         return $this->parentStore();
@@ -98,6 +96,7 @@ class AddressCrudController extends CrudController
 
     protected function setupCreateOperation()
     {
+        CRUD::setValidation(AddressRequest::class);
         CRUD::addFields([
             [
                 'name' => 'User',

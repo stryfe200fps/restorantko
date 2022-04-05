@@ -31,16 +31,7 @@ class ProductCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::addColumns([
-            [
-                'name' => 'productImages',
-                'height' => '300px',
-                'width' => '200px',
-                'type' => 'image',
-                'disk' => 'local',
-                'name' => 'productImages',
-                'model' => 'App\Models\ProductImage',
-                'value' => fn ($q)  => $q->productImages[0]->file_path ?? ''
-            ],
+         
             [   'name' => 'SKU' ],
             [   'name' => 'name' ],
             [   'name' => 'price',
@@ -51,6 +42,13 @@ class ProductCrudController extends CrudController
             [
                 'name' => 'allergens',
                 'model' => 'App\Models\Allergen'
+            ],
+            [
+                'name' => 'image',
+                'type' => 'image',
+                'prefix' => 'storage/',
+                'height' => '70px',
+                'width' => '100px'
             ]
             ]);
 
@@ -59,7 +57,6 @@ class ProductCrudController extends CrudController
 
     protected function store(Request $request)
     {
-        dd($request);
        return $this->parentStore();
     }
 
@@ -82,20 +79,19 @@ class ProductCrudController extends CrudController
                 'type' => 'checklist',
                 'model' => 'App\Models\Allergen'
             ],
-            
         ]);
 
      CRUD::addField(
         [
-        'label' => "Article Image",
+        'label' => "Product Main Image",
         'name' => "image",
-        'type' => 'upload_multiple',
+        'type' => 'upload',
+        'upload' => true,
         'crop' => true, // set to true to allow cropping, false to disable
         'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
         ] 
         ) ;
     }
-
 
     public function moderate($id)
      {
@@ -120,7 +116,6 @@ class ProductCrudController extends CrudController
 
     public function upload(Request $request)
     {
-
         $product = Product::find((int) $request->product_id);
         foreach ($request->file('file') as $img) { 
         $imageName = $product->sku."_".$img->getClientOriginalName();
@@ -131,6 +126,5 @@ class ProductCrudController extends CrudController
         ]);
         }
         return response()->json(['success'=>$imageName]);
-
     }
 }

@@ -20,24 +20,15 @@ class Product extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-    public static function boot()
-{
-    parent::boot();
-    static::deleting(function($obj) {
-        Storage::delete(Str::replaceFirst('storage/','public/', $obj->image));
-    });
-    }
+
     protected $table = 'products';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     protected $guarded = ['id'];
     // protected $fillable = [];
+    protected $appends = ['photo'];
     // protected $hidden = [];
     // protected $dates = [];
-
-    protected $appends = ['image'];
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -51,7 +42,10 @@ class Product extends Model
     
     public function setImageAttribute($value)
     {
- 
+        $attribute_name = "image";
+        $disk = "public";
+
+        $this->uploadFileToDisk($value, $attribute_name, $disk, '');
     }
 
     public function productImages()
@@ -68,7 +62,6 @@ class Product extends Model
     {
         return 'attr';
     }
-    
     
     /*
     |--------------------------------------------------------------------------

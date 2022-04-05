@@ -27,7 +27,8 @@ class ProductRequest extends FormRequest
         return [
             'name' => 'required|min:5|max:255',
             'price' => 'required',
-            'description' => 'required'
+            'description' => 'required',
+            'image' => 'required'
         ];
     }
 
@@ -54,7 +55,7 @@ class ProductRequest extends FormRequest
                  'name.min' => 'product name should be 5 or more characters',
                'name.max' => 'product name should be less than 255 characters',
                'name.required' => 'product name is required',
-
+                'image.required' => 'Upload product image',
                'price.max' => 'price 10 character',
                'price.required' => 'price is required',
 

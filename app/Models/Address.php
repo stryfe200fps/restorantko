@@ -24,6 +24,8 @@ class Address extends Model
     // protected $hidden = [];
     // protected $dates = [];
 
+
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -42,17 +44,27 @@ class Address extends Model
 
     public function setPrimaryAddress(int $userId)
     {
-        $checkAddress = Address::where([
+        $checkAddressIfDefault = Address::where([
             'user_id' => $userId,
             'is_primary_address' => true
         ])->get();
 
-        if($checkAddress->count() === 0 ) 
+        if($checkAddressIfDefault->count() === 0 ) 
             return false;
         
-        $currentPrimaryAddress = $checkAddress->first();
+        $currentPrimaryAddress = $checkAddressIfDefault->first();
         $currentPrimaryAddress->is_primary_address = false;
         $currentPrimaryAddress->save();
+    }
+
+    public function setIsPrimaryAddressAttribute($value)
+    {
+        $this->attributes['is_primary_address'] = $value;
+
+        if($this->userHasAddress((int)$this->attributes['user_id']) === 0) {
+            $this->attributes['is_primary_address'] = true;
+        }
+
     }
 
     public function userHasAddress(int $userId) 

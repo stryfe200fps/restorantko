@@ -179,14 +179,14 @@ class OrderCrudController extends CrudController
         $order->total = (float)$request['total'];
         $order->save();
 
-        foreach (json_decode( $request['orders'], true) as $id => $quantity) {
-            $product = Product::where('id', $id)->first() ;
+        foreach (json_decode( $request['orders'], true) as $cart) {
+            $product = Product::where('id', $cart[0])->first() ;
             $orderRow = new OrderRow;
-            $orderRow->order_id =  $order->id ;
-            $orderRow->product_id = $id;
+            $orderRow->order_id =  $order->id;
+            $orderRow->product_id = $product->id;
             $orderRow->name = $product->name;
             $orderRow->price = $product->price;
-            $orderRow->quantity = $quantity;
+            $orderRow->quantity = $cart[3];
             $orderRow->save();
         }
         \Alert::success(trans('backpack::crud.insert_success'))->flash();
