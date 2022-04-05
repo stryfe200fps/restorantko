@@ -59,11 +59,11 @@ class Address extends Model
 
     public function setIsPrimaryAddressAttribute($value)
     {
-        $this->attributes['is_primary_address'] = $value;
 
         if($this->userHasAddress((int)$this->attributes['user_id']) === 0) {
             $this->attributes['is_primary_address'] = true;
-        }
+        }else 
+            $this->attributes['is_primary_address'] = $value;
     }
 
     public function userHasAddress(int $userId) 

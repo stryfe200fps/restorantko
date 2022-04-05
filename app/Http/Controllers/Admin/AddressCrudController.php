@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Http\Requests\AddressRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use App\Models\Countries;
 
 class AddressCrudController extends CrudController
 {
@@ -66,8 +67,11 @@ class AddressCrudController extends CrudController
                 'attribute' => 'name'
             ],
             [
-                'name' => 'fullName',
-                'label' => 'Full Name'
+                'name' => 'address',
+                'label' => 'address'
+            ],
+            [
+                'name' => 'country'
             ],
             [   'name' => 'phone_number' ],
             [   'name' => 'address' ],
@@ -96,6 +100,8 @@ class AddressCrudController extends CrudController
 
     protected function setupCreateOperation()
     {
+      
+
         CRUD::setValidation(AddressRequest::class);
         CRUD::addFields([
             [
@@ -119,7 +125,11 @@ class AddressCrudController extends CrudController
             [   'name' => 'address' ],
             [   'name' => 'street' ],
             [   'name' => 'zip_code' ],
-            [   'name' => 'country' ],
+            [   'name' => 'country', 'type' => 'select_from_array' ,
+                'options' => (new Countries)->getCountries() ,
+                'attributes' => [
+                  'id' => 'country',
+          ] ],
             [   'name' => 'is_primary_address' ],
         ]);
     }

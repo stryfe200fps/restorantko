@@ -5,6 +5,7 @@ use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Countries;
 use Illuminate\Support\Facades\Route;
 
 // --------------------------
@@ -12,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 // --------------------------
 // This route file is loaded automatically by Backpack\Base.
 // Routes you generate using Backpack\Generators will be placed here.
+//
+//
+//
+//
 
 Route::group([
     'prefix'     => config('backpack.base.route_prefix', 'admin'),
@@ -55,6 +60,6 @@ Route::group([
     });
 
     Route::get('address/user/get/{id}', function ($id) {
-        return Address::where('user_id', $id)->get();
+        return Address::where('user_id', $id)->orderBy('is_primary_address', 'desc')->get();
     });
 }); // this should be the absolute last line of this file

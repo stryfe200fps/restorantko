@@ -120,8 +120,6 @@
        $(".item").html(item);
        $(".total").val($total);
        $('.json-holder').val(JSON.stringify(cart));
-       console.log('----cart------')
-       console.log(cart);
     }
 
     function reset(id) {
