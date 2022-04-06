@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
-use App\Models\Allergen;
 use Illuminate\Http\Request;
 use App\Http\Requests\ProductRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -23,9 +22,11 @@ class ProductCrudController extends CrudController
     
     public function setup()
     {
+        $this->middleware('is_admin');
         CRUD::setModel(\App\Models\Product::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/product');
         CRUD::setEntityNameStrings('product', 'products');
+
     }
 
     protected function setupListOperation()
